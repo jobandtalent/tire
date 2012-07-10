@@ -11,8 +11,13 @@ module Tire::Search
       end
 
       should "encode simple declarations as JSON" do
-        assert_equal( { :test1 => { :script => "doc['my_field_name'].value * factor", :params => { :factor => 2.2 }, :lang => :js } }.to_json,
-                      ScriptField.new(:test1, { :script => "doc['my_field_name'].value * factor", :params => { :factor => 2.2 }, :lang => :js }).to_json)
+        assert_equal( { :test1 => { :script => "doc['my_field_name'].value * factor",
+                                    :params => { :factor => 2.2 }, :lang => :js } }.to_json,
+
+                      ScriptField.new(   :test1,
+                                       { :script => "doc['my_field_name'].value * factor",
+                                         :params => { :factor => 2.2 }, :lang => :js }      ).to_json
+                    )
       end
 
     end

@@ -4,10 +4,15 @@ module Tire
 
     class Search
 
-      attr_reader :indices, :json, :query, :facets, :filters, :options, :explain, :script_fields
+      attr_reader :indices, :query, :facets, :filters, :options, :explain, :script_fields
 
       def initialize(indices=nil, options={}, &block)
-        @indices = Array(indices)
+        if indices.is_a?(Hash)
+          set_indices_options(indices)
+          @indices = indices.keys
+        else
+          @indices = Array(indices)
+        end
         @types   = Array(options.delete(:type)).map { |type| Utils.escape(type) }
         @options = options
 
@@ -16,12 +21,26 @@ module Tire
         block.arity < 1 ? instance_eval(&block) : block.call(self) if block_given?
       end
 
+
+      def set_indices_options(indices)
+        indices.each do |index, index_options|
+          if index_options[:boost]
+            @indices_boost ||= {}
+            @indices_boost[index] = index_options[:boost]
+          end
+        end
+      end
+
       def results
         @results  || (perform; @results)
       end
 
       def response
         @response || (perform; @response)
+      end
+
+      def json
+        @json     || (perform; @json)
       end
 
       def url
@@ -116,6 +135,7 @@ module Tire
       def to_hash
         @options.delete(:payload) || begin
           request = {}
+          request.update( { :indices_boost => @indices_boost } ) if @indices_boost
           request.update( { :query  => @query.to_hash } )    if @query
           request.update( { :sort   => @sort.to_ary   } )    if @sort
           request.update( { :facets => @facets.to_hash } )   if @facets
