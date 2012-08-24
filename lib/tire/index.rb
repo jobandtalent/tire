@@ -149,10 +149,17 @@ module Tire
       new_index = Index.new(name)
       new_index.create(options) unless new_index.exists?
 
+      transform = options.delete(:transform)
+
       Search::Scan.new(self.name, &block).each do |results|
-        new_index.bulk_store results.map do |document|
-          document.to_hash.except(:type, :_index, :_explanation, :_score, :_version, :highlight, :sort)
+
+        documents = results.map do |document|
+          document  = document.to_hash.except(:type, :_index, :_explanation, :_score, :_version, :highlight, :sort)
+          document  = transform.call(document) if transform
+          document
         end
+
+        new_index.bulk_store documents
       end
     end
 
@@ -259,7 +266,7 @@ module Tire
       MultiJson.decode(@response.body)['ok']
 
     ensure
-      curl = %Q|curl -X PUT "#{Configuration.url}/_percolator/#{@name}/?pretty=1" -d '#{MultiJson.encode(options)}'|
+      curl = %Q|curl -X PUT "#{Configuration.url}/_percolator/#{@name}/#{name}?pretty=1" -d '#{MultiJson.encode(options)}'|
       logged('_percolator', curl)
     end
 
