@@ -31,6 +31,10 @@ module Tire
         end
       end
 
+      def respond_to?(method_name)
+        @attributes.has_key?(method_name.to_sym) || super
+      end
+
       def [](key)
         @attributes[key.to_sym]
       end
