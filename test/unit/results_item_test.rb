@@ -142,6 +142,11 @@ module Tire
         should "be an instance of model, based on _type" do
           assert_equal FakeRailsModel, @document.class
         end
+        
+        should "have implemented respond_to? for proxied methods" do
+          p @document
+          assert @document.respond_to?(:foo)
+        end
 
         should "be inspectable with masquerade" do
           assert_match /<Item \(FakeRailsModel\)/, @document.inspect

@@ -32,7 +32,13 @@ module Tire
       end
 
       def respond_to?(method_name)
-        @attributes.has_key?(method_name.to_sym) || super
+        if @attributes.has_key?(method_name.to_sym)
+          true
+        elsif !model.nil?
+          model.respond_to?(method_name)
+        else
+          super
+        end
       end
 
       def [](key)
