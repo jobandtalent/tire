@@ -31,11 +31,11 @@ module Tire
         end
       end
 
-      def respond_to?(method_name)
+      def respond_to?(method_name, include_private = false)
         if @attributes.has_key?(method_name.to_sym)
           true
         elsif !model.nil?
-          model.respond_to?(method_name)
+          model.respond_to?(method_name, include_private)
         else
           super
         end
